@@ -1,0 +1,19 @@
+summary: "独立文件作为doc/yaml"
+tags:
+  - "其他"
+responses:
+  200:
+    schema:
+      properties:
+        code:
+          type: integer
+          description: "返回码"
+          default: 0
+        message:
+          type: string
+          description: "返回字符串描述"
+          default: ok
+        data:
+          $ref: "file:definitions.yml#/car"
+        data2:
+          $ref: "file:definitions.json#/user"

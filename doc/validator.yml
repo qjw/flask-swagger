@@ -1,0 +1,245 @@
+custome_validator:
+  summary: 自定义校验
+  tags:
+    - 校验
+  parameters:
+    - name: time
+      in: formData
+      type: string
+      validator: hm
+      default: "09:30"
+      description: "日期（时/分）（09:30）"
+      required: true
+    - name: mobile
+      in: formData
+      type: string
+      validator: mobile
+      default: "13800138000"
+      description: "手机号码"
+      required: true
+    - name: plate
+      in: formData
+      type: string
+      validator: plate
+      default: "粤B88888"
+      description: "车牌号码"
+      required: true
+    - name: t1
+      in: formData
+      type: string
+      validator: datetime
+      default: "2018-05-19 11:22:33"
+      description: "日期/时间"
+      required: true
+    - name: t2
+      in: formData
+      type: string
+      validator: date
+      default: "2018-05-19"
+      description: "日期"
+      required: true
+  responses:
+    200:
+      schema:
+        properties:
+          code:
+            description: 返回码
+            type: integer
+            default: 0
+          message:
+            description: 返回字符串描述
+            type: string
+            default: ok
+base_validator:
+  summary: 基础类型
+  description: |
+      1. 字符串
+      2. 整形
+      3. 浮点数
+
+      参考 http://json-schema.org/latest/json-schema-validation.html
+  tags:
+    - 校验
+  parameters:
+    - name: str_len
+      in: formData
+      type: string
+      maxLength: 5
+      minLength: 1
+      description: 1&lt;=X&lt;=5
+      default: abc
+      required: true
+    - name: str_pattern
+      in: formData
+      type: string
+      pattern: ^head
+      description: "正则"
+      default: head1
+      required: true
+    - name: str_enum
+      in: formData
+      type: string
+      description: "枚举"
+      enum:
+        - "one"
+        - "two"
+        - "three"
+      required: true
+    - name: int_len
+      in: formData
+      type: integer
+      maximum: 5
+      minimum: 1
+      multipleOf: 2
+      default: 4
+      description: 必须是1/4/7
+      required: true
+    - name: int_enum
+      in: formData
+      type: integer
+      enum:
+        - 1
+        - 4
+        - 7
+      default: 4
+      required: true
+    - name: double_len
+      in: formData
+      type: number
+      maximum: 5.0
+      minimum: 1.0
+      default: 1.1
+      exclusiveMaximum: true
+      exclusiveMinimum: true
+      description: 1.0&lt;X&lt;5.0
+      required: true
+  responses:
+    200:
+      schema:
+        properties:
+          code:
+            description: 返回码
+            type: integer
+            default: 0
+          message:
+            description: 返回字符串描述
+            type: string
+            default: ok
+array_validator:
+  summary: 数组
+  description: |
+      1. 数组
+      参考 http://json-schema.org/latest/json-schema-validation.html
+  tags:
+    - 校验
+  parameters:
+    - name: body
+      in: body
+      schema:
+        type: object
+        properties:
+          array:
+            type: array
+            description: |
+              1. 数量1&lt;=X&lt;=5
+              2. 不能重复
+              3. 可以为字符串或者浮点数
+            minItems: 1
+            maxItems: 5
+            uniqueItems: true
+            items:
+              - type: string
+                default: abcdefg
+              - type: number
+                default: 1.2
+        required:
+          - array
+      required: true
+  responses:
+    200:
+      schema:
+        properties:
+          code:
+            description: 返回码
+            type: integer
+            default: 0
+          message:
+            description: 返回字符串描述
+            type: string
+            default: ok
+dep_validator:
+  summary: 对象
+  description: |
+      # 依赖关系
+      ## 1. 若设置了str1，必须设置str2
+      ## 2. str3/str4必须同时设置，要不就都不设置
+      ## 3. p1必填，至少1个至多3个，只能在p1/p2/p3/p4中选择
+
+      参考 http://json-schema.org/latest/json-schema-validation.html
+  tags:
+    - 校验
+  parameters:
+    - name: body
+      in: body
+      schema:
+        type: object
+        properties:
+          str1:
+            type: string
+            default: str1
+          str2:
+            type: string
+            default: str2
+          dep:
+            type: object
+            properties:
+              str3:
+                type: string
+                default: str3
+              str4:
+                type: string
+                default: str4
+            dependencies:
+              str3:
+                - str4
+              str4:
+                - str3
+          max:
+            type: object
+            minProperties: 1
+            maxProperties: 3
+            additionalProperties: false
+            properties:
+              p1:
+                type: string
+                default: p1
+              p2:
+                type: string
+                default: p2
+              p3:
+                type: string
+                default: p3
+              p4:
+                type: string
+                default: p4
+            required:
+              - p1
+        dependencies:
+          str1:
+            - str2
+        required:
+          - dep
+          - max
+      required: true
+  responses:
+    200:
+      schema:
+        properties:
+          code:
+            description: 返回码
+            type: integer
+            default: 0
+          message:
+            description: 返回字符串描述
+            type: string
+            default: ok

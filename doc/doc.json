@@ -1,0 +1,932 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+        "city_extra": {
+            "type": "object",
+            "description": "城市",
+            "properties": {
+                "city_address": {
+                    "type": "string",
+                    "description": "详细地址",
+                    "default": "大冲国际中心"
+                },
+                "city_code": {
+                    "type": "string",
+                    "description": "城市代码",
+                    "default": "440300"
+                }
+            },
+            "required": [
+                "city_code"
+            ]
+        },
+        "city": {
+            "type": "object",
+            "description": "城市",
+            "properties": {
+                "city_id": {
+                    "type": "integer",
+                    "description": "id",
+                    "default": 123
+                },
+                "city_name": {
+                    "type": "string",
+                    "description": "姓名",
+                    "default": "深圳"
+                },
+                "province": {
+                    "type": "string",
+                    "description": "省份",
+                    "default": "广东"
+                }
+            },
+            "required": [
+                "city_id",
+                "city_name"
+            ]
+        },
+        "obj": {
+            "allOf": [
+                {
+                    "$ref": "file:definitions.json#/user"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "sex": {
+                            "type": "integer",
+                            "description": "性别",
+                            "default": 1
+                        }
+                    }
+                }
+            ]
+        },
+        "obj2": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/city"
+                },
+                {
+                    "$ref": "#/definitions/city_extra"
+                }
+            ]
+        }
+    },
+    "helloworld": {
+        "summary": "hello world",
+        "description": "这只是个简单的实例",
+        "tags": [
+            "基础"
+        ],
+        "responses": {
+            "200": {
+                "schema": {
+                    "properties": {
+                        "code": {
+                            "type": "integer",
+                            "description": "返回码",
+                            "default": 0
+                        },
+                        "message": {
+                            "type": "string",
+                            "description": "返回字符串描述",
+                            "default": "ok"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "app_view": {
+        "summary": "不使用蓝本",
+        "description": "这只是个简单的实例",
+        "tags": [
+            "基础"
+        ],
+        "responses": {
+            "200": {
+                "schema": {
+                    "properties": {
+                        "code": {
+                            "type": "integer",
+                            "description": "返回码",
+                            "default": 0
+                        },
+                        "message": {
+                            "type": "string",
+                            "description": "返回字符串描述",
+                            "default": "ok"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "query": {
+        "summary": "query参数",
+        "description": "正则校验\n\n数字范围校验\n\n自定义错误提示",
+        "tags": [
+            "基础"
+        ],
+        "parameters": [
+            {
+                "name": "query1",
+                "in": "query",
+                "type": "string",
+                "description": "手机",
+                "pattern":"^1[3|4|5|7|8]\\d{9}$",
+                "error":"请输入正确的客户手机",
+                "required": true
+            },
+            {
+                "name": "query2",
+                "in": "query",
+                "type": "integer",
+                "description": "最大100，最小1",
+                "error":"请输入正确的数字，最大100，最小1",
+                "minimum": 1,
+                "maximum": 100,
+                "required": true
+            }
+        ],
+        "responses": {
+            "200": {
+                "schema": {
+                    "properties": {
+                        "code": {
+                            "type": "integer",
+                            "description": "返回码",
+                            "default": 0
+                        },
+                        "message": {
+                            "type": "string",
+                            "description": "返回字符串描述",
+                            "default": "ok"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "path": {
+        "summary": "path参数",
+        "description": "字符串长度范围校验",
+        "tags": [
+            "基础"
+        ],
+        "parameters": [
+            {
+                "name": "id1",
+                "in": "path",
+                "type": "string",
+                "maxLength": 10,
+                "minLength": 2,
+                "description": "ID{2-10}",
+                "required": true
+            },
+            {
+                "name": "id2",
+                "in": "path",
+                "type": "integer",
+                "description": "ID222",
+                "required": true
+            }
+        ],
+        "responses": {
+            "200": {
+                "schema": {
+                    "properties": {
+                        "code": {
+                            "type": "integer",
+                            "description": "返回码",
+                            "default": 0
+                        },
+                        "message": {
+                            "type": "string",
+                            "description": "返回字符串描述",
+                            "default": "ok"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "form": {
+        "summary": "form参数",
+        "description": "浮点数，boolean",
+        "tags": [
+            "基础"
+        ],
+        "parameters": [
+            {
+                "name": "f1",
+                "in": "formData",
+                "type": "string",
+                "description": "手机",
+                "pattern":"^1[3|4|5|7|8]\\d{9}$",
+                "error":"请输入正确的客户手机",
+                "required": true
+            },
+            {
+                "name": "f2",
+                "in": "formData",
+                "type": "integer",
+                "description": "最大100，最小1",
+                "error":"请输入正确的数字，最大100，最小1",
+                "minimum": 1,
+                "maximum": 100,
+                "required": true
+            },
+            {
+                "name": "f3",
+                "in": "formData",
+                "type": "number",
+                "description": "最大10.1，最小0.5",
+                "minimum": 0.5,
+                "maximum": 10.1,
+                "required": true
+            },
+            {
+                "name": "f4",
+                "in": "formData",
+                "type": "boolean",
+                "required": true
+            }
+        ],
+        "responses": {
+            "200": {
+                "schema": {
+                    "properties": {
+                        "code": {
+                            "type": "integer",
+                            "description": "返回码",
+                            "default": 0
+                        },
+                        "message": {
+                            "type": "string",
+                            "description": "返回字符串描述",
+                            "default": "ok"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "json": {
+        "summary": "json参数",
+        "description": "数组数量限制\n\n`\"uniqueItems\": true`数组内不重复",
+        "tags": [
+            "基础"
+        ],
+        "parameters": [
+            {
+                "in": "body",
+                "name":"body",
+                "required": true,
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "description": "名称",
+                            "default": "张三",
+                            "validator": "plate",
+                            "minLength": 1,
+                            "maxLength": 210
+                        },
+                        "start_at": {
+                            "type": "string",
+                            "description": "日期",
+                            "default": "2018-05-14"
+                        },
+                        "citys": {
+                            "type": "array",
+                            "minItems": 1,
+                            "maxItems": 100,
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "integer",
+                                "description": "城市ID",
+                                "default": 430900
+                            }
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "start_at",
+                        "citys"
+                    ]
+                }
+            }
+        ],
+        "responses": {
+            "200": {
+                "schema": {
+                    "properties": {
+                        "code": {
+                            "type": "integer",
+                            "description": "返回码",
+                            "default": 0
+                        },
+                        "message": {
+                            "type": "string",
+                            "description": "返回字符串描述",
+                            "default": "ok"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "params": {
+        "summary": "各种参数组合",
+        "tags": [
+            "基础"
+        ],
+        "parameters": [
+            {
+                "name": "query1",
+                "in": "query",
+                "type": "string",
+                "description": "手机",
+                "pattern":"^1[3|4|5|7|8]\\d{9}$",
+                "error":"请输入正确的客户手机"
+            },
+            {
+                "name": "query2",
+                "in": "query",
+                "type": "integer",
+                "description": "最大100，最小1",
+                "error":"请输入正确的数字，最大100，最小1",
+                "minimum": 1,
+                "maximum": 100,
+                "required": true
+            },
+            {
+                "name": "id",
+                "in": "path",
+                "type": "integer",
+                "description": "ID222",
+                "required": true
+            },
+            {
+                "in": "body",
+                "name":"body",
+                "required": true,
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "description": "名称",
+                            "default": "张三",
+                            "minLength": 1,
+                            "maxLength": 210
+                        },
+                        "start_at": {
+                            "type": "string",
+                            "description": "日期",
+                            "default": "2018-05-14"
+                        },
+                        "citys": {
+                            "type": "array",
+                            "minItems": 1,
+                            "maxItems": 100,
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "integer",
+                                "description": "城市ID",
+                                "default": 430900
+                            }
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "start_at",
+                        "citys"
+                    ]
+                }
+            }
+        ],
+        "responses": {
+            "200": {
+                "schema": {
+                    "properties": {
+                        "code": {
+                            "type": "integer",
+                            "description": "返回码",
+                            "default": 0
+                        },
+                        "message": {
+                            "type": "string",
+                            "description": "返回字符串描述",
+                            "default": "ok"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "optional_params": {
+        "summary": "可选参数",
+        "description": "body参数传`null`或者不传若指定PATH参数\n\nBody内部也可以为null",
+        "tags": [
+            "基础"
+        ],
+        "parameters": [
+            {
+                "name": "id",
+                "in": "path",
+                "type": "integer",
+                "description": "ID222",
+                "required": false
+            },
+            {
+                "in": "body",
+                "name":"body",
+                "required": false,
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": ["string", "null"],
+                            "description": "名称",
+                            "default": "张三",
+                            "minLength": 1,
+                            "maxLength": 210
+                        },
+                        "start_at": {
+                            "type": ["string", "null"],
+                            "description": "日期",
+                            "default": "2018-05-14"
+                        },
+                        "citys": {
+                            "type": "array",
+                            "minItems": 1,
+                            "maxItems": 100,
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "integer",
+                                "description": "城市ID",
+                                "default": 430900
+                            }
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "start_at",
+                        "citys"
+                    ]
+                }
+            }
+        ],
+        "responses": {
+            "200": {
+                "schema": {
+                    "properties": {
+                        "code": {
+                            "type": "integer",
+                            "description": "返回码",
+                            "default": 0
+                        },
+                        "message": {
+                            "type": "string",
+                            "description": "返回字符串描述",
+                            "default": "ok"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "validate_disable": {
+        "summary": "不校验，只做文档展示",
+        "tags": [
+            "其他"
+        ],
+        "parameters": [
+            {
+                "name": "query1",
+                "in": "query",
+                "type": "string",
+                "description": "手机",
+                "pattern":"^1[3|4|5|7|8]\\d{9}$",
+                "error":"请输入正确的客户手机",
+                "required": true
+            },
+            {
+                "name": "query2",
+                "in": "query",
+                "type": "integer",
+                "description": "最大100，最小1",
+                "error":"请输入正确的数字，最大100，最小1",
+                "minimum": 1,
+                "maximum": 100,
+                "required": true
+            },
+            {
+                "in": "body",
+                "name":"body",
+                "required": true,
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "description": "名称",
+                            "default": "张三",
+                            "minLength": 1,
+                            "maxLength": 210
+                        },
+                        "start_at": {
+                            "type": "string",
+                            "description": "日期",
+                            "default": "2018-05-14"
+                        },
+                        "citys": {
+                            "type": "array",
+                            "minItems": 1,
+                            "maxItems": 100,
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "integer",
+                                "description": "城市ID",
+                                "default": 430900
+                            }
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "start_at",
+                        "citys"
+                    ]
+                }
+            }
+        ],
+        "responses": {
+            "200": {
+                "schema": {
+                    "properties": {
+                        "code": {
+                            "type": "integer",
+                            "description": "返回码",
+                            "default": 0
+                        },
+                        "message": {
+                            "type": "string",
+                            "description": "返回字符串描述",
+                            "default": "ok"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "error_tip": {
+        "summary": "定制错误提示",
+        "description": "#通过schema.error设置",
+        "tags": [
+            "其他"
+        ],
+        "parameters": [
+            {
+                "name": "query",
+                "in": "query",
+                "type": "string",
+                "description": "手机",
+                "pattern":"^1[3|4|5|7|8]\\d{9}$",
+                "error":"请输入正确的客户手机",
+                "required": true
+            }
+        ],
+        "responses": {
+            "200": {
+                "schema": {
+                    "properties": {
+                        "code": {
+                            "type": "integer",
+                            "description": "返回码",
+                            "default": 0
+                        },
+                        "message": {
+                            "type": "string",
+                            "description": "返回字符串描述",
+                            "default": "ok"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "composition": {
+        "summary": "组合-Composition",
+        "description": "将共用的对象单独定义，作为各种key:$VALUE\n\n既可同文件引用，也可跨文件引用",
+        "tags": [
+            "对象复用"
+        ],
+        "parameters": [
+            {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "param": {
+                            "type": "number",
+                            "description": "某个参数",
+                            "default": 1.11
+                        },
+                        "city": {
+                            "$ref": "#/definitions/city"
+                        },
+                        "user": {
+                            "$ref": "file:definitions.json#/user"
+                        }
+                    },
+                    "required": [
+                        "param",
+                        "city",
+                        "user"
+                    ]
+                }
+            }
+        ],
+        "responses": {
+            "200": {
+                "schema": {
+                    "properties": {
+                        "code": {
+                            "type": "integer",
+                            "description": "返回码",
+                            "default": 0
+                        },
+                        "message": {
+                            "type": "string",
+                            "description": "返回字符串描述",
+                            "default": "ok"
+                        },
+                        "data": {
+                            "type": "object",
+                            "properties": {
+                                "param": {
+                                    "type": "number",
+                                    "description": "某个参数",
+                                    "default": 1.11
+                                },
+                                "city": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/city"
+                                    }
+                                },
+                                "users": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "file:definitions.json#/user"
+                                    }
+                                }
+                            },
+                            "required": [
+                                "param",
+                                "city",
+                                "user"
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "inheritance": {
+        "summary": "继承-inheritance",
+        "description": "将不同的对象共有的字段抽出来单独定义，减少重复",
+        "tags": [
+            "对象复用"
+        ],
+        "parameters": [
+            {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "schema": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/obj2"
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "param": {
+                                    "allOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "param": {
+                                                    "type": "number",
+                                                    "description": "某个参数",
+                                                    "default": 1.11
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "$ref": "#/definitions/obj"
+                                        }
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "param"
+                            ]
+                        }
+                    ]
+                }
+            }
+        ],
+        "responses": {
+            "200": {
+                "schema": {
+                    "allOf": [
+                        {
+                            "type": "object",
+                            "properties": {
+                                "extra": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "file:definitions.json#/user"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "param": {
+                                                    "type": "number",
+                                                    "description": "某个参数",
+                                                    "default": 1.11
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "$ref": "#/definitions/obj"
+                        },
+                        {
+                            "$ref": "#/definitions/obj2"
+                        }
+                    ]
+                }
+            }
+        }
+    },
+    "group": {
+        "summary": "分组/oneof",
+        "description": "三组中任意一种",
+        "tags": [
+            "对象复用"
+        ],
+        "parameters": [
+            {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "schema": {
+                    "type": "object",
+                    "oneOf": [{
+                        "$ref": "#/group/definitions/a"
+                    }, {
+                        "$ref": "#/group/definitions/b"
+                    }, {
+                        "$ref": "#/group/definitions/c"
+                    }]
+                }
+            }
+        ],
+        "responses": {
+            "200": {
+                "schema": {
+                    "properties": {
+                        "code": {
+                            "type": "integer",
+                            "description": "返回码",
+                            "default": 0
+                        },
+                        "message": {
+                            "type": "string",
+                            "description": "返回字符串描述",
+                            "default": "ok"
+                        }
+                    }
+                }
+            }
+        },
+        "definitions": {
+            "a": {
+                "type": "object",
+                "properties": {
+                    "a1": {
+                        "type": "string",
+                        "default": "a1"
+                    },
+                    "a2": {
+                        "type": "string",
+                        "default": "a2"
+                    }
+                },
+                "additionalProperties": false,
+                "required": [
+                    "a1",
+                    "a2"
+                ]
+            },
+            "b": {
+                "type": "object",
+                "properties": {
+                    "b1": {
+                        "type": "string",
+                        "default": "b1"
+                    },
+                    "b2": {
+                        "type": "string",
+                        "default": "b2"
+                    }
+                },
+                "additionalProperties": false,
+                "required": [
+                    "b1",
+                    "b2"
+                ]
+            },
+            "c": {
+                "type": "object",
+                "properties": {
+                    "c1": {
+                        "type": "string",
+                        "default": "c1"
+                    },
+                    "c2": {
+                        "type": "string",
+                        "default": "c2"
+                    }
+                },
+                "additionalProperties": false,
+                "required": [
+                    "c1",
+                    "c2"
+                ]
+            }
+        }
+    },
+    "item_group": {
+        "summary": "字段/oneof/anyof",
+        "description": "数组中任意一种格式\n\nhttps://spacetelescope.github.io/understanding-json-schema/reference/combining.html",
+        "tags": [
+            "对象复用"
+        ],
+        "parameters": [
+            {
+                "in": "body",
+                "name": "body",
+                "required": true,
+                "schema": {
+                    "properties": {
+                        "id": {
+                            "type": "array",
+                            "items": {
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/group/definitions/a"
+                                    },{
+                                        "$ref": "#/group/definitions/b"
+                                    },{
+                                        "$ref": "#/group/definitions/b"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        ],
+        "responses": {
+            "200": {
+                "schema": {
+                    "properties": {
+                        "code": {
+                            "type": "integer",
+                            "description": "返回码",
+                            "default": 0
+                        },
+                        "message": {
+                            "type": "string",
+                            "description": "返回字符串描述",
+                            "default": "ok"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

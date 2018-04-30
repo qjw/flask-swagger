@@ -1,0 +1,159 @@
+definitions:
+  city_extra:
+    type: object
+    description: 城市
+    properties:
+      city_address:
+        type: string
+        description: 详细地址
+        default: 大冲国际中心
+      city_code:
+        type: string
+        description: 城市代码
+        default: 440300
+    required:
+      - city_code
+  city:
+    type: object
+    description: 城市
+    properties:
+      city_id:
+        type: integer
+        description: id
+        default: 123
+      city_name:
+        type: string
+        description: 姓名
+        default: 深圳
+      province:
+        type: string
+        description: 省份
+        default: 广东
+    required:
+      - city_id
+      - city_name
+yaml_sample:
+  summary: 使用yaml格式
+  description: |
+      # 使用yml格式写doc
+      1. aaaa
+      2. bbb
+      3. 可以**多行**，写`markdown`真爽
+  tags:
+    - 其他
+  parameters:
+    - name: id
+      in: query
+      type: integer
+      description: 联系人ID
+    - name: name
+      in: query
+      type: string
+      description: 联系人名字
+  responses:
+    200:
+      schema:
+        properties:
+          code:
+            type: integer
+            description: 返回码
+            default: 0
+          message:
+            type: string
+            description: 返回字符串描述
+            default: ok
+method_view:
+  summary: 使用MethodView
+  description: "参考 http://docs.jinkan.org/docs/flask/views.html"
+  tags:
+    - 其他
+  parameters:
+    - name: id
+      in: query
+      type: integer
+      description: 联系人ID
+    - name: name
+      in: query
+      type: string
+      description: 联系人名字
+  responses:
+    200:
+      schema:
+        properties:
+          code:
+            type: integer
+            description: 返回码
+            default: 0
+          message:
+            type: string
+            description: 返回字符串描述
+            default: ok
+endpoints_get:
+  summary: 限定endpoints和GET方法
+  tags:
+    - 其他
+  parameters:
+    - name: id
+      in: query
+      type: integer
+      description: ID
+  responses:
+    200:
+      schema:
+        properties:
+          code:
+            type: integer
+            description: 返回码
+            default: 0
+          message:
+            type: string
+            description: 返回字符串描述
+            default: ok
+          data:
+            allOf:
+              - $ref: "#/definitions/city"
+              - $ref: "#/definitions/city_extra"
+endpoints_post:
+  summary: 限定endpoints和POST方法
+  tags:
+    - 其他
+  parameters:
+    - name: id
+      in: formData
+      type: integer
+      description: ID
+  responses:
+    200:
+      schema:
+        properties:
+          code:
+            type: integer
+            description: 返回码
+            default: 0
+          message:
+            type: string
+            description: 返回字符串描述
+            default: ok
+          data:
+            $ref: "#/definitions/city"
+endpoint_all:
+  summary: 限定endpoint以及任意http方法
+  tags:
+    - 其他
+  parameters:
+    - name: id
+      in: path
+      type: integer
+      description: ID
+  responses:
+    200:
+      schema:
+        properties:
+          code:
+            type: integer
+            description: 返回码
+            default: 0
+          message:
+            type: string
+            description: 返回字符串描述
+            default: ok

@@ -1,0 +1,28 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "user": {
+        "description": "组合对象",
+        "type": "object",
+        "properties": {
+            "user_id": {
+                "type": "integer",
+                "description": "id",
+                "default": 123
+            },
+            "user_name": {
+                "type": "string",
+                "description": "姓名",
+                "default": "张三"
+            },
+            "age": {
+                "type": "integer",
+                "description": "年龄",
+                "default": 23
+            }
+        },
+        "required": [
+            "user_id",
+            "user_name"
+        ]
+    }
+}

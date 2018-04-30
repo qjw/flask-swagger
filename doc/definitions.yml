@@ -1,0 +1,14 @@
+car:
+  type: object
+  description: 汽车
+  properties:
+    id:
+      type: string
+      description: 车型ID
+      default: 012584
+    name:
+      type: string
+      description: 车型
+      default: 雷克萨斯L200S
+  required:
+    - id
