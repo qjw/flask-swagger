@@ -1,5 +1,11 @@
 custome_validator:
   summary: 自定义校验
+  tag:
+    - name: 校验
+      description: 校验各种规则
+      externalDocs:
+        description: 点击查看详情
+        url: 'http://www.baidu.com'
   tags:
     - 校验
   parameters:
@@ -148,10 +154,11 @@ array_validator:
             maxItems: 5
             uniqueItems: true
             items:
-              - type: string
-                default: abcdefg
-              - type: number
-                default: 1.2
+              anyOf:
+                - type: string
+                  default: abcdefg
+                - type: number
+                  default: 1.2
         required:
           - array
       required: true

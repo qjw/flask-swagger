@@ -20,8 +20,10 @@ flask run
 ``` bash
 # 安装dev分支
 pip install git+https://github.com/qjw/flask-swagger.git@dev
+pip install git+ssh://git@github.com/qjw/flask-swagger.git@dev
 # 安装版本（tag）
 pip install git+https://github.com/qjw/flask-swagger.git@v1.0.0
+pip install git+ssh://git@github.com/qjw/flask-swagger.git@v1.0.0
 ```
 
 # 使用
@@ -541,11 +543,11 @@ Config = {
 > 关于api的通用前缀，参见`base_url参数`
 
 ## 不做校验
-swag_from注解添加【**validate_flag=False**】参数即可禁用校验，只保留doc
+swagger.doc注解添加【**validate_flag=False**】参数即可禁用校验，只保留doc
 
 ```
 @api.route('/14', methods=['GET'])
-@swag_from('api.json#/14',validate_flag=False)
+@swagger.doc('api.json#/14',validate_flag=False)
 def f14():
     return jsonify(code=0, message='ok')
 ```

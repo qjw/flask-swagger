@@ -1,0 +1,38 @@
+upload:
+  summary: 文件上传
+  tags:
+      - 文件
+  parameters:
+      - name: file
+        in: formData
+        type: file
+        description: 待上传的文件
+  responses:
+      200:
+        schema:
+          properties:
+            code:
+              type: integer
+              description: 返回码
+              default: 0
+            message:
+              type: string
+              description: 返回字符串描述
+              default: ok
+download:
+  summary: 文件下载
+  tags:
+      - 文件
+  produces:
+    - image/png
+    - image/jpg
+    - image/jpeg
+    - image/gif
+  responses:
+      200:
+        schema:
+          properties:
+            code:
+              type: integer
+              description: 返回码
+              default: 0

@@ -3,7 +3,9 @@ import logging
 import os
 from functools import wraps
 
+import yaml
 from flask import Blueprint
+from flask import Response
 from flask import request
 from flask import url_for
 from jsonschema import FormatChecker
@@ -34,6 +36,7 @@ class Swagger:
         self.load_lock = threading.Lock()
         # 已经解析过的spec
         self.schema = None
+        self.yml_schema = None
 
         self.doc_root = None
         # 具体的开关
@@ -93,7 +96,7 @@ class Swagger:
 
     def _load_doc_root(self):
         doc_root = self.app.root_path
-        self.doc_root = self.config.get('doc_root', None)
+        self.doc_root = self.config.get('doc_root', const.DOC_ROOT)
         # 已经设置了变量
         if self.doc_root is not None:
             # 如果是相对路径，那么加上根目录
@@ -110,7 +113,7 @@ class Swagger:
         self.info = self.config.get('info', const.INFORMATION)
 
         self._load_doc_root()
-        self.doc_enable = self.config.get('doc_enable',False)
+        self.doc_enable = self.config.get('doc_enable',True)
         self.validate_enable = self.config.get('validate_enable',True)
 
         logger.info("set doc_enable(%r) validate_enable(%r)", self.doc_enable, self.validate_enable)
@@ -121,23 +124,61 @@ class Swagger:
     def _load_spec(self):
         # 已经初始化过，就不用再初始化了
         if self.schema:
-            return self.schema
+            return Response(
+                response=self.schema,
+                status=200,
+                mimetype='application/json; charset=utf-8'
+            )
 
         self.load_lock.acquire()
         try:
             if self.schema:
-                return self.schema
+                return Response(
+                    response=self.schema,
+                    status=200,
+                    mimetype='application/json; charset=utf-8'
+                )
             self.schema = self._load_spec_imp()
         finally:
             self.load_lock.release()
-        return self.schema
+        return Response(
+            response=self.schema,
+            status=200,
+            mimetype='application/json; charset=utf-8'
+        )
 
-    def _load_spec_imp(self):
-        base_url = self.config.get('base_url',None)
+    def _load_yml_spec(self):
+        # 已经初始化过，就不用再初始化了
+        if self.yml_schema:
+            return Response(
+                response=self.yml_schema,
+                status=200,
+                mimetype='text/x-yaml; charset=utf-8'
+            )
+
+        self.load_lock.acquire()
+        try:
+            if self.yml_schema:
+                return Response(
+                    response=self.yml_schema,
+                    status=200,
+                    mimetype='text/x-yaml; charset=utf-8'
+                )
+            self.yml_schema = self._load_spec_imp(use_json=False)
+        finally:
+            self.load_lock.release()
+        return Response(
+            response=self.yml_schema,
+            status=200,
+            mimetype='text/x-yaml; charset=utf-8'
+        )
+
+    def _load_spec_imp(self, use_json=True):
+        base_url = self.config.get('base_url',const.BASE_URL)
         logger.info("base url %s", base_url)
 
         securityDefinitions = {}
-        custom_headers = self.config.get('custom_headers',None)
+        custom_headers = self.config.get('custom_headers',const.CUSTOME_HEADERS)
         if custom_headers and isinstance(custom_headers, list):
             for item in custom_headers:
                 securityDefinitions[item] = {
@@ -149,11 +190,11 @@ class Swagger:
         from collections import defaultdict
         data = {
             "swagger": self.config.get('swagger_version', "2.0"),
-            "basePath": self.config.get('base_url',"/"),
+            "basePath": base_url,
             "info": self.info,
             "securityDefinitions": securityDefinitions,
-            "paths": defaultdict(dict),
-            "definitions": defaultdict(dict)
+            "paths": {},
+            "definitions": {}
         }
 
         # https://swagger.io/docs/specification/api-host-and-base-path/
@@ -161,14 +202,11 @@ class Swagger:
             data['host'] = self.config.get('host')
         if self.config.get('schemes'):
             data['schemes'] = [self.config.get('schemes')]
-        # https://swagger.io/docs/specification/authentication/
-        # if self.config.get("securityDefinitions"):
-        #     data["securityDefinitions"] = self.config.get(
-        #         'securityDefinitions'
-        #     )
-        # set defaults from template
-        # if self.template is not None:
-        #     data.update(self.template)
+        if self.config.get('externalDocs'):
+            data['externalDocs'] = self.config.get('externalDocs')
+        tags = []
+        tags_map = {}
+        data['tags'] = tags
 
         paths = data['paths']
         definitions = data['definitions']
@@ -207,12 +245,30 @@ class Swagger:
                 )
 
                 if swag is not None:
+                    swag_tags = swag.get('tag', None)
+                    if type(swag_tags) is list:
+                        for tag in swag_tags:
+                            if type(tag) is dict:
+                                name = tag.get('name','')
+                                if not tags_map.get(name):
+                                    tags_map[name] = 0
+                                    tags.append(tag)
+                            else:
+                                logger.warn("invalid tag type %s", type(tag))
+                    elif swag_tags:
+                        logger.warn("invalid tags type %s", type(swag_tags))
 
                     params = swag.get('parameters', [])
 
                     responses = swag.get('responses', {})
+
+                    def ensure_description(d):
+                        if not d.get('description',None):
+                            d['description'] = ''
+                        return d
+
                     responses = {
-                        str(key): value
+                        str(key): ensure_description(value)
                         for key, value in responses.items()
                     }
 
@@ -221,13 +277,22 @@ class Swagger:
                         description=description,
                         responses=responses
                     )
-                    # parameters - swagger ui dislikes empty parameter lists
-                    if len(params) > 0:
-                        operation['parameters'] = params
                     # other optionals
                     for key in optional_fields:
                         if key in swag:
                             operation[key] = swag.get(key)
+
+                    # parameters - swagger ui dislikes empty parameter lists
+                    if len(params) > 0:
+                        operation['parameters'] = params
+                        for item in params:
+                            if item.get('in') == "formData":
+                                consumes = operation.get('consumes')
+                                if not consumes:
+                                    consumes = []
+                                    operation['consumes'] = consumes
+                                consumes.append('multipart/form-data')
+                                break
                     operations[verb] = operation
 
             if len(operations):
@@ -237,8 +302,14 @@ class Swagger:
                 # old regex '(<(.*?\:)?(.*?)>)'
                 for arg in re.findall('(<([^<>]*:)?([^<>]*)>)', rule):
                     rule = rule.replace(arg[0], '{%s}' % arg[2])
-                paths[rule].update(operations)
-        return json.dumps(data,ensure_ascii=False,sort_keys=True)
+                obj = paths.get(rule,{})
+                if not obj:
+                    paths[rule] = obj
+                obj.update(operations)
+        if use_json:
+            return json.dumps(data,indent=4,ensure_ascii=False,sort_keys=True)
+        else:
+            return yaml.dump(data, allow_unicode=True, default_flow_style=False)
 
     def get_url_mappings(self, rule_filter=None):
         rule_filter = rule_filter or (lambda rule: True)
@@ -260,18 +331,32 @@ class Swagger:
         # 如果swagger ui和后端的spec不在一个域，需要开启
         if self.config.get("enable_cors", True):
             from flask_cors import CORS
-            CORS(blueprint)
+            CORS(blueprint, supports_credentials=True)
 
         @blueprint.route("/")
         def api_index():
             url = url_for(swagger_endpoint + '.api_spec')
-            url = "%s%s"%(self.config.get("domain",const.DOMAIN), url)
-            swagger_ui = self.config.get("swagger_ui", const.SWAGGER_UI_URL)
+
+            if request.host_url:
+                domain = request.host_url
+                domain = domain[:-1] if domain.endswith('/') else domain
+            else:
+                domain = self.config.get("domain",const.DOMAIN)
+
+            url = "%s%s"%(domain, url)
+            if domain.startswith('http://'):
+                swagger_ui = "http://doc.t.self.kim"
+            else:
+                swagger_ui = self.config.get("swagger_ui",const.SWAGGER_UI_URL)
             return redirect('%s/index.html?url=%s'%(swagger_ui, url))
 
         @blueprint.route("/" + const.SPEC_URL)
         def api_spec():
             return self._load_spec()
+
+        @blueprint.route("/" + const.YML_SPEC_URL)
+        def yml_api_spec():
+            return self._load_yml_spec()
 
         self.app.register_blueprint(blueprint, url_prefix=self.config.get('url_prefix',const.URL_PREFIX))
 

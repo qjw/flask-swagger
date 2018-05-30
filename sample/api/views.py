@@ -163,3 +163,36 @@ def array_validator():
 @swagger.doc('validator.yml#/dep_validator')
 def dep_validator():
     return jsonify(code=0, message='ok')
+
+########################################################################################################################
+@api.route('/upload_image', methods=['POST'])
+@swagger.doc('image.yml#/upload')
+def upload_image():
+    name = None
+    for fn in request.files:
+        name = fn
+        break
+
+    if not name:
+        return jsonify(code=404, message='name不存在')
+
+    storage = request.files[name]
+
+    filename = storage.filename
+    storage.save("./" + filename)
+    return jsonify(code=0, message='ok',filename=filename)
+
+@api.route('/download_image', methods=['GET'])
+@swagger.doc('image.yml#/download')
+def download():
+    from PIL import Image
+    from flask import send_file
+    import io
+
+    img = Image.new('RGB', (250, 250), "red")
+    imagefile = io.BytesIO()
+    img.save(imagefile, format='PNG')
+    imagefile.seek(0)
+    return send_file(imagefile,
+                     attachment_filename='logo.png',
+                     mimetype='image/png')

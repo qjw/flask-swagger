@@ -18,8 +18,8 @@ def init_view(app):
 def init_router(app):
     from sample.api import api
     from flask_cors import CORS
-    CORS(app)
-    CORS(api)
+    CORS(app, supports_credentials=True)
+    CORS(api, supports_credentials=True)
     app.register_blueprint(api, url_prefix=url_prefix)
 
 def create_app():
