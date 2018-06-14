@@ -13,35 +13,35 @@ custome_validator:
       in: formData
       type: string
       validator: hm
-      default: "09:30"
+      example: "09:30"
       description: "日期（时/分）（09:30）"
       required: true
     - name: mobile
       in: formData
       type: string
       validator: mobile
-      default: "13800138000"
+      example: "13800138000"
       description: "手机号码"
       required: true
     - name: plate
       in: formData
       type: string
       validator: plate
-      default: "粤B88888"
+      example: "粤B88888"
       description: "车牌号码"
       required: true
     - name: t1
       in: formData
       type: string
       validator: datetime
-      default: "2018-05-19 11:22:33"
+      example: "2018-05-19 11:22:33"
       description: "日期/时间"
       required: true
     - name: t2
       in: formData
       type: string
       validator: date
-      default: "2018-05-19"
+      example: "2018-05-19"
       description: "日期"
       required: true
   responses:
@@ -51,11 +51,11 @@ custome_validator:
           code:
             description: 返回码
             type: integer
-            default: 0
+            example: 0
           message:
             description: 返回字符串描述
             type: string
-            default: ok
+            example: ok
 base_validator:
   summary: 基础类型
   description: |
@@ -73,14 +73,14 @@ base_validator:
       maxLength: 5
       minLength: 1
       description: 1&lt;=X&lt;=5
-      default: abc
+      example: abc
       required: true
     - name: str_pattern
       in: formData
       type: string
       pattern: ^head
       description: "正则"
-      default: head1
+      example: head1
       required: true
     - name: str_enum
       in: formData
@@ -97,7 +97,7 @@ base_validator:
       maximum: 5
       minimum: 1
       multipleOf: 2
-      default: 4
+      example: 4
       description: 必须是1/4/7
       required: true
     - name: int_enum
@@ -107,14 +107,14 @@ base_validator:
         - 1
         - 4
         - 7
-      default: 4
+      example: 4
       required: true
     - name: double_len
       in: formData
       type: number
       maximum: 5.0
       minimum: 1.0
-      default: 1.1
+      example: 1.1
       exclusiveMaximum: true
       exclusiveMinimum: true
       description: 1.0&lt;X&lt;5.0
@@ -126,11 +126,11 @@ base_validator:
           code:
             description: 返回码
             type: integer
-            default: 0
+            example: 0
           message:
             description: 返回字符串描述
             type: string
-            default: ok
+            example: ok
 array_validator:
   summary: 数组
   description: |
@@ -156,9 +156,9 @@ array_validator:
             items:
               anyOf:
                 - type: string
-                  default: abcdefg
+                  example: abcdefg
                 - type: number
-                  default: 1.2
+                  example: 1.2
         required:
           - array
       required: true
@@ -169,11 +169,11 @@ array_validator:
           code:
             description: 返回码
             type: integer
-            default: 0
+            example: 0
           message:
             description: 返回字符串描述
             type: string
-            default: ok
+            example: ok
 dep_validator:
   summary: 对象
   description: |
@@ -193,19 +193,19 @@ dep_validator:
         properties:
           str1:
             type: string
-            default: str1
+            example: str1
           str2:
             type: string
-            default: str2
+            example: str2
           dep:
             type: object
             properties:
               str3:
                 type: string
-                default: str3
+                example: str3
               str4:
                 type: string
-                default: str4
+                example: str4
             dependencies:
               str3:
                 - str4
@@ -219,16 +219,16 @@ dep_validator:
             properties:
               p1:
                 type: string
-                default: p1
+                example: p1
               p2:
                 type: string
-                default: p2
+                example: p2
               p3:
                 type: string
-                default: p3
+                example: p3
               p4:
                 type: string
-                default: p4
+                example: p4
             required:
               - p1
         dependencies:
@@ -245,8 +245,8 @@ dep_validator:
           code:
             description: 返回码
             type: integer
-            default: 0
+            example: 0
           message:
             description: 返回字符串描述
             type: string
-            default: ok
+            example: ok

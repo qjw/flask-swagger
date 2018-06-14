@@ -6,11 +6,11 @@ definitions:
       city_address:
         type: string
         description: 详细地址
-        default: 大冲国际中心
+        example: 大冲国际中心
       city_code:
         type: string
         description: 城市代码
-        default: 440300
+        example: 440300
     required:
       - city_code
   city:
@@ -20,15 +20,15 @@ definitions:
       city_id:
         type: integer
         description: id
-        default: 123
+        example: 123
       city_name:
         type: string
         description: 姓名
-        default: 深圳
+        example: 深圳
       province:
         type: string
         description: 省份
-        default: 广东
+        example: 广东
     required:
       - city_id
       - city_name
@@ -57,11 +57,11 @@ yaml_sample:
           code:
             type: integer
             description: 返回码
-            default: 0
+            example: 0
           message:
             type: string
             description: 返回字符串描述
-            default: ok
+            example: ok
 method_view:
   summary: 使用MethodView
   description: "参考 http://docs.jinkan.org/docs/flask/views.html"
@@ -83,11 +83,11 @@ method_view:
           code:
             type: integer
             description: 返回码
-            default: 0
+            example: 0
           message:
             type: string
             description: 返回字符串描述
-            default: ok
+            example: ok
 endpoints_get:
   summary: 限定endpoints和GET方法
   tags:
@@ -104,11 +104,11 @@ endpoints_get:
           code:
             type: integer
             description: 返回码
-            default: 0
+            example: 0
           message:
             type: string
             description: 返回字符串描述
-            default: ok
+            example: ok
           data:
             allOf:
               - $ref: "#/definitions/city"
@@ -129,11 +129,11 @@ endpoints_post:
           code:
             type: integer
             description: 返回码
-            default: 0
+            example: 0
           message:
             type: string
             description: 返回字符串描述
-            default: ok
+            example: ok
           data:
             $ref: "#/definitions/city"
 endpoint_all:
@@ -152,8 +152,8 @@ endpoint_all:
           code:
             type: integer
             description: 返回码
-            default: 0
+            example: 0
           message:
             type: string
             description: 返回字符串描述
-            default: ok
+            example: ok

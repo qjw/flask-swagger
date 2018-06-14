@@ -178,21 +178,23 @@ class Swagger:
         logger.info("base url %s", base_url)
 
         securityDefinitions = {}
+        security = [{}]
         custom_headers = self.config.get('custom_headers',const.CUSTOME_HEADERS)
         if custom_headers and isinstance(custom_headers, list):
             for item in custom_headers:
+                security[0][item] = []
                 securityDefinitions[item] = {
                     "type": "apiKey",
                     "in": "header",
                     "name": item
                 }
 
-        from collections import defaultdict
         data = {
             "swagger": self.config.get('swagger_version', "2.0"),
             "basePath": base_url,
             "info": self.info,
             "securityDefinitions": securityDefinitions,
+            "security": security,
             "paths": {},
             "definitions": {}
         }

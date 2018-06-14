@@ -5,10 +5,10 @@ car:
     id:
       type: string
       description: 车型ID
-      default: 012584
+      example: 012584
     name:
       type: string
       description: 车型
-      default: 雷克萨斯L200S
+      example: 雷克萨斯L200S
   required:
     - id

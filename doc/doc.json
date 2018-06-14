@@ -8,12 +8,12 @@
                 "city_address": {
                     "type": "string",
                     "description": "详细地址",
-                    "default": "大冲国际中心"
+                    "example": "大冲国际中心"
                 },
                 "city_code": {
                     "type": "string",
                     "description": "城市代码",
-                    "default": "440300"
+                    "example": "440300"
                 }
             },
             "required": [
@@ -27,17 +27,17 @@
                 "city_id": {
                     "type": "integer",
                     "description": "id",
-                    "default": 123
+                    "example": 123
                 },
                 "city_name": {
                     "type": "string",
                     "description": "姓名",
-                    "default": "深圳"
+                    "example": "深圳"
                 },
                 "province": {
                     "type": "string",
                     "description": "省份",
-                    "default": "广东"
+                    "example": "广东"
                 }
             },
             "required": [
@@ -56,7 +56,7 @@
                         "sex": {
                             "type": "integer",
                             "description": "性别",
-                            "default": 1
+                            "example": 1
                         }
                     }
                 }
@@ -86,12 +86,12 @@
                         "code": {
                             "type": "integer",
                             "description": "返回码",
-                            "default": 0
+                            "example": 0
                         },
                         "message": {
                             "type": "string",
                             "description": "返回字符串描述",
-                            "default": "ok"
+                            "example": "ok"
                         }
                     }
                 }
@@ -111,12 +111,12 @@
                         "code": {
                             "type": "integer",
                             "description": "返回码",
-                            "default": 0
+                            "example": 0
                         },
                         "message": {
                             "type": "string",
                             "description": "返回字符串描述",
-                            "default": "ok"
+                            "example": "ok"
                         }
                     }
                 }
@@ -157,12 +157,12 @@
                         "code": {
                             "type": "integer",
                             "description": "返回码",
-                            "default": 0
+                            "example": 0
                         },
                         "message": {
                             "type": "string",
                             "description": "返回字符串描述",
-                            "default": "ok"
+                            "example": "ok"
                         }
                     }
                 }
@@ -200,12 +200,12 @@
                         "code": {
                             "type": "integer",
                             "description": "返回码",
-                            "default": 0
+                            "example": 0
                         },
                         "message": {
                             "type": "string",
                             "description": "返回字符串描述",
-                            "default": "ok"
+                            "example": "ok"
                         }
                     }
                 }
@@ -261,12 +261,12 @@
                         "code": {
                             "type": "integer",
                             "description": "返回码",
-                            "default": 0
+                            "example": 0
                         },
                         "message": {
                             "type": "string",
                             "description": "返回字符串描述",
-                            "default": "ok"
+                            "example": "ok"
                         }
                     }
                 }
@@ -290,7 +290,7 @@
                         "name": {
                             "type": "string",
                             "description": "名称",
-                            "default": "张三",
+                            "example": "张三",
                             "validator": "plate",
                             "minLength": 1,
                             "maxLength": 210
@@ -298,7 +298,7 @@
                         "start_at": {
                             "type": "string",
                             "description": "日期",
-                            "default": "2018-05-14"
+                            "example": "2018-05-14"
                         },
                         "citys": {
                             "type": "array",
@@ -308,7 +308,7 @@
                             "items": {
                                 "type": "integer",
                                 "description": "城市ID",
-                                "default": 430900
+                                "example": 430900
                             }
                         }
                     },
@@ -327,12 +327,12 @@
                         "code": {
                             "type": "integer",
                             "description": "返回码",
-                            "default": 0
+                            "example": 0
                         },
                         "message": {
                             "type": "string",
                             "description": "返回字符串描述",
-                            "default": "ok"
+                            "example": "ok"
                         }
                     }
                 }
@@ -380,14 +380,14 @@
                         "name": {
                             "type": "string",
                             "description": "名称",
-                            "default": "张三",
+                            "example": "张三",
                             "minLength": 1,
                             "maxLength": 210
                         },
                         "start_at": {
                             "type": "string",
                             "description": "日期",
-                            "default": "2018-05-14"
+                            "example": "2018-05-14"
                         },
                         "citys": {
                             "type": "array",
@@ -397,7 +397,7 @@
                             "items": {
                                 "type": "integer",
                                 "description": "城市ID",
-                                "default": 430900
+                                "example": 430900
                             }
                         }
                     },
@@ -416,12 +416,12 @@
                         "code": {
                             "type": "integer",
                             "description": "返回码",
-                            "default": 0
+                            "example": 0
                         },
                         "message": {
                             "type": "string",
                             "description": "返回字符串描述",
-                            "default": "ok"
+                            "example": "ok"
                         }
                     }
                 }
@@ -452,14 +452,14 @@
                         "name": {
                             "type": ["string", "null"],
                             "description": "名称",
-                            "default": "张三",
+                            "example": "张三",
                             "minLength": 1,
                             "maxLength": 210
                         },
                         "start_at": {
                             "type": ["string", "null"],
                             "description": "日期",
-                            "default": "2018-05-14"
+                            "example": "2018-05-14"
                         },
                         "citys": {
                             "type": "array",
@@ -469,7 +469,7 @@
                             "items": {
                                 "type": "integer",
                                 "description": "城市ID",
-                                "default": 430900
+                                "example": 430900
                             }
                         }
                     },
@@ -488,12 +488,12 @@
                         "code": {
                             "type": "integer",
                             "description": "返回码",
-                            "default": 0
+                            "example": 0
                         },
                         "message": {
                             "type": "string",
                             "description": "返回字符串描述",
-                            "default": "ok"
+                            "example": "ok"
                         }
                     }
                 }
@@ -535,14 +535,14 @@
                         "name": {
                             "type": "string",
                             "description": "名称",
-                            "default": "张三",
+                            "example": "张三",
                             "minLength": 1,
                             "maxLength": 210
                         },
                         "start_at": {
                             "type": "string",
                             "description": "日期",
-                            "default": "2018-05-14"
+                            "example": "2018-05-14"
                         },
                         "citys": {
                             "type": "array",
@@ -552,7 +552,7 @@
                             "items": {
                                 "type": "integer",
                                 "description": "城市ID",
-                                "default": 430900
+                                "example": 430900
                             }
                         }
                     },
@@ -571,12 +571,12 @@
                         "code": {
                             "type": "integer",
                             "description": "返回码",
-                            "default": 0
+                            "example": 0
                         },
                         "message": {
                             "type": "string",
                             "description": "返回字符串描述",
-                            "default": "ok"
+                            "example": "ok"
                         }
                     }
                 }
@@ -607,12 +607,12 @@
                         "code": {
                             "type": "integer",
                             "description": "返回码",
-                            "default": 0
+                            "example": 0
                         },
                         "message": {
                             "type": "string",
                             "description": "返回字符串描述",
-                            "default": "ok"
+                            "example": "ok"
                         }
                     }
                 }
@@ -636,7 +636,7 @@
                         "param": {
                             "type": "number",
                             "description": "某个参数",
-                            "default": 1.11
+                            "example": 1.11
                         },
                         "city": {
                             "$ref": "#/definitions/city"
@@ -660,12 +660,12 @@
                         "code": {
                             "type": "integer",
                             "description": "返回码",
-                            "default": 0
+                            "example": 0
                         },
                         "message": {
                             "type": "string",
                             "description": "返回字符串描述",
-                            "default": "ok"
+                            "example": "ok"
                         },
                         "data": {
                             "type": "object",
@@ -673,7 +673,7 @@
                                 "param": {
                                     "type": "number",
                                     "description": "某个参数",
-                                    "default": 1.11
+                                    "example": 1.11
                                 },
                                 "city": {
                                     "type": "array",
@@ -726,7 +726,7 @@
                                                 "param": {
                                                     "type": "number",
                                                     "description": "某个参数",
-                                                    "default": 1.11
+                                                    "example": 1.11
                                                 }
                                             }
                                         },
@@ -762,7 +762,7 @@
                                                 "param": {
                                                     "type": "number",
                                                     "description": "某个参数",
-                                                    "default": 1.11
+                                                    "example": 1.11
                                                 }
                                             }
                                         }
@@ -811,12 +811,12 @@
                         "code": {
                             "type": "integer",
                             "description": "返回码",
-                            "default": 0
+                            "example": 0
                         },
                         "message": {
                             "type": "string",
                             "description": "返回字符串描述",
-                            "default": "ok"
+                            "example": "ok"
                         }
                     }
                 }
@@ -828,11 +828,11 @@
                 "properties": {
                     "a1": {
                         "type": "string",
-                        "default": "a1"
+                        "example": "a1"
                     },
                     "a2": {
                         "type": "string",
-                        "default": "a2"
+                        "example": "a2"
                     }
                 },
                 "additionalProperties": false,
@@ -846,11 +846,11 @@
                 "properties": {
                     "b1": {
                         "type": "string",
-                        "default": "b1"
+                        "example": "b1"
                     },
                     "b2": {
                         "type": "string",
-                        "default": "b2"
+                        "example": "b2"
                     }
                 },
                 "additionalProperties": false,
@@ -864,11 +864,11 @@
                 "properties": {
                     "c1": {
                         "type": "string",
-                        "default": "c1"
+                        "example": "c1"
                     },
                     "c2": {
                         "type": "string",
-                        "default": "c2"
+                        "example": "c2"
                     }
                 },
                 "additionalProperties": false,
@@ -917,12 +917,12 @@
                         "code": {
                             "type": "integer",
                             "description": "返回码",
-                            "default": 0
+                            "example": 0
                         },
                         "message": {
                             "type": "string",
                             "description": "返回字符串描述",
-                            "default": "ok"
+                            "example": "ok"
                         }
                     }
                 }

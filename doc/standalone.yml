@@ -8,11 +8,11 @@ responses:
         code:
           type: integer
           description: "返回码"
-          default: 0
+          example: 0
         message:
           type: string
           description: "返回字符串描述"
-          default: ok
+          example: ok
         data:
           $ref: "file:definitions.yml#/car"
         data2:

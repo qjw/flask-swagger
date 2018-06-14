@@ -629,6 +629,55 @@ def handle_bad_request(e):
                                schema=str(e.schema)), 200)
 ```
 
+# swagger ui 适配
+若swagger ui和spec跨域，那么需要解决cookie自动带入的问题
+
+对于swagger ui 3.x，以<https://github.com/swagger-api/swagger-ui/releases/tag/v3.17.0>为例，需要做如下修改
+
+index.html，参考[这里](https://github.com/swagger-api/swagger-ui/issues/2895)
+``` js
+window.onload = function() {
+
+  // Build a system
+  const ui = SwaggerUIBundle({
+    // ...
+    docExpansion: "none",
+    validatorUrl: null,
+  })
+
+  // 添加下面这行
+  ui.fn.fetch.withCredentials = true
+  window.ui = ui
+}
+```
+
+另外spec中，只有`securityDefinitions`定义而没有`security`定义，不会自动发送header头，例如下面的声明
+``` yml
+# 若没有security声明，swagger ui 3.x请求不会包含自定义header。2.x没有问题
+security:
+- X-CSRF-Token: []
+securityDefinitions:
+  X-CSRF-Token:
+    in: header
+    name: X-CSRF-Token
+    type: apiKey
+```
+
+对于swagger ui 2.x，以<https://github.com/swagger-api/swagger-ui/releases/tag/v2.2.10>为例，增加下面的配置
+``` js
+      window.swaggerUi = new SwaggerUi({
+        url: url,
+        showOperationIds: false,
+        // 增加下面的配置
+        enableCookies: true,
+        validatorUrl: null,
+      });
+```
+
+## 默认值
+swagger ui 2.0兼容 `default`标签作为example默认值，3.0不在兼容，必须使用`example`标签，参考[这里](https://swagger.io/docs/specification/2-0/adding-examples/)
+
+> Note: Do not confuse example values with the default values. An example is used to illustrate what the value is supposed to be like. A default value is something that the server uses if the value is not provided in the request.
 
 # 参考
 原始需求参考 <https://github.com/rochacbruno/flasgger>

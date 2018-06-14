@@ -14,11 +14,11 @@ upload:
             code:
               type: integer
               description: 返回码
-              default: 0
+              example: 0
             message:
               type: string
               description: 返回字符串描述
-              default: ok
+              example: ok
 download:
   summary: 文件下载
   tags:
@@ -35,4 +35,4 @@ download:
             code:
               type: integer
               description: 返回码
-              default: 0
+              example: 0

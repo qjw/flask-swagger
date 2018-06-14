@@ -7,17 +7,17 @@
             "user_id": {
                 "type": "integer",
                 "description": "id",
-                "default": 123
+                "example": 123
             },
             "user_name": {
                 "type": "string",
                 "description": "姓名",
-                "default": "张三"
+                "example": "张三"
             },
             "age": {
                 "type": "integer",
                 "description": "年龄",
-                "default": 23
+                "example": 23
             }
         },
         "required": [
