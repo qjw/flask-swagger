@@ -23,3 +23,5 @@ DOC_ROOT = "../doc"
 SWAGGER_END_POINT = "flask_swagger_api"
 # swagger ui的地址
 SWAGGER_UI_URL = "http://localhost:5000/ui"
+# swagger 2.0 or openapi 3.0
+SWAGGER_VERSION = "2.0"

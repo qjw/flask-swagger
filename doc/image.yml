@@ -7,6 +7,10 @@ upload:
         in: formData
         type: file
         description: 待上传的文件
+      - name: file2
+        in: formData
+        type: file
+        description: 待上传的文件
   responses:
       200:
         schema:
@@ -31,8 +35,3 @@ download:
   responses:
       200:
         schema:
-          properties:
-            code:
-              type: integer
-              description: 返回码
-              example: 0

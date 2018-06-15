@@ -1,3 +1,4 @@
+import copy
 import json
 import logging
 import os
@@ -52,6 +53,9 @@ class Swagger:
 
         self.custome_validators = {}
         self.custome_translators = {}
+
+        # openapi版本号
+        self.openapi_version = None
 
         from jsonschema.validators import extend
         from jsonschema import Draft4Validator
@@ -116,6 +120,17 @@ class Swagger:
         self.doc_enable = self.config.get('doc_enable',True)
         self.validate_enable = self.config.get('validate_enable',True)
 
+        self.openapi_version = self.config.get('swagger_version', const.SWAGGER_VERSION)
+        if self.openapi_version.startswith("3."):
+            self.openapi_version = 3
+        else:
+            self.openapi_version = 2
+
+        schemes = self.config.get('schemes', '')
+        host = self.config.get('host', '')
+        if schemes and not host or not schemes and host:
+            raise Exception("schemas and host need set at time")
+
         logger.info("set doc_enable(%r) validate_enable(%r)", self.doc_enable, self.validate_enable)
         if not self.doc_enable and not self.validate_enable:
             raise Exception("doc_enable/validate_enable enable at least one")
@@ -173,10 +188,7 @@ class Swagger:
             mimetype='text/x-yaml; charset=utf-8'
         )
 
-    def _load_spec_imp(self, use_json=True):
-        base_url = self.config.get('base_url',const.BASE_URL)
-        logger.info("base url %s", base_url)
-
+    def _build_global_info(self, base_url):
         securityDefinitions = {}
         security = [{}]
         custom_headers = self.config.get('custom_headers',const.CUSTOME_HEADERS)
@@ -190,28 +202,54 @@ class Swagger:
                 }
 
         data = {
-            "swagger": self.config.get('swagger_version', "2.0"),
-            "basePath": base_url,
             "info": self.info,
-            "securityDefinitions": securityDefinitions,
             "security": security,
-            "paths": {},
-            "definitions": {}
+            "paths": {}
         }
-
-        # https://swagger.io/docs/specification/api-host-and-base-path/
-        if self.config.get('host'):
-            data['host'] = self.config.get('host')
-        if self.config.get('schemes'):
-            data['schemes'] = [self.config.get('schemes')]
         if self.config.get('externalDocs'):
             data['externalDocs'] = self.config.get('externalDocs')
+
+        schemes = self.config.get('schemes', '')
+        host = self.config.get('host', '')
+        if self.openapi_version == 3:
+            data["openapi"] = self.config.get('swagger_version', const.SWAGGER_VERSION)
+            data["components"] = {
+                "securitySchemes": securityDefinitions
+            }
+
+            url = "%s://%s%s"%(schemes,host,base_url)
+            if url.startswith("://"): url = url[3:]
+            data["servers"] = [{
+                "url": url
+            }]
+        else:
+            data["swagger"] = self.config.get('swagger_version', const.SWAGGER_VERSION)
+            data["securityDefinitions"] = securityDefinitions
+            data["definitions"] = {}
+            data["basePath"] = base_url
+
+            # https://swagger.io/docs/specification/api-host-and-base-path/
+            if host: data['host'] = host
+            if schemes: data['schemes'] = [schemes]
+
+        return data
+
+
+    def _load_spec_imp(self, use_json=True):
+        base_url = self.config.get('base_url',const.BASE_URL)
+        logger.info("base url %s", base_url)
+
+        # https://swagger.io/docs/specification/authentication/
+        # https://dev.to/mikeralphson/comparing-openapiswagger-20-and-300-rc1
+        # https://www.openapis.org/blog/2017/03/01/openapi-spec-3-implementers-draft-released
+        # https://blog.readme.io/an-example-filled-guide-to-swagger-3-2/
+        data = self._build_global_info(base_url)
+
         tags = []
         tags_map = {}
         data['tags'] = tags
 
         paths = data['paths']
-        definitions = data['definitions']
         ignore_verbs = set(("HEAD", "OPTIONS"))
 
         # technically only responses is non-optional
@@ -261,13 +299,34 @@ class Swagger:
                         logger.warn("invalid tags type %s", type(swag_tags))
 
                     params = swag.get('parameters', [])
-
                     responses = swag.get('responses', {})
 
                     def ensure_description(d):
                         if not d.get('description',None):
                             d['description'] = ''
-                        return d
+
+                        if self.openapi_version == 3:
+                            description = d['description']
+                            d.pop('description')
+
+                            if swag.get('produces'):
+                                produces = swag.get('produces')
+                                swag.pop('produces')
+                                content = {
+                                    str(key): copy.deepcopy(d)
+                                    for key in produces
+                                }
+                            else:
+                                content = {
+                                    "application/json": d
+                                }
+
+                            return {
+                                "description": description,
+                                "content": content
+                            }
+                        else:
+                            return d
 
                     responses = {
                         str(key): ensure_description(value)
@@ -286,15 +345,75 @@ class Swagger:
 
                     # parameters - swagger ui dislikes empty parameter lists
                     if len(params) > 0:
-                        operation['parameters'] = params
-                        for item in params:
-                            if item.get('in') == "formData":
-                                consumes = operation.get('consumes')
-                                if not consumes:
-                                    consumes = []
-                                    operation['consumes'] = consumes
-                                consumes.append('multipart/form-data')
-                                break
+                        if self.openapi_version == 3:
+                            # openapi3 去掉form/json
+                            newParams = []
+                            operation['parameters'] = newParams
+
+                            # openapi3 兼容模式下，需要将form合并成一个schema
+                            formParameters = {}
+                            formParametersRequired = []
+                            formFileType = 'application/x-www-form-urlencoded'
+
+                            # form表单的required和json不一样，需要放置在每一项中间
+                            # 根据openapi3手册，保留json一样的required数组
+                            for item in params:
+                                if item.get('in') == "formData":
+                                    required = item.get('required', False)
+                                    item_name = item.get('name', None)
+                                    item.pop('in', None)
+                                    item.pop('name', None)
+                                    formParameters[item_name] = item
+                                    if required:
+                                        formParametersRequired.append(item_name)
+                                    if item.get('type', None) == "file":
+                                        formFileType = "multipart/form-data"
+                                elif item.get('in') == "body":
+                                    # openapi3模式下，兼容老的body
+                                    requestBody = {
+                                        'description': item.get('description', ''),
+                                        'required': item.get('required', False),
+                                        'content': {
+                                            'application/json': {
+                                                'schema': item.get('schema', {})
+                                            }
+                                        }
+                                    }
+                                    operation['requestBody'] = requestBody
+                                else:
+                                    # 仅仅需要将type移动到，而并不需要将maximum之类的标签移动
+                                    item["schema"] = {
+                                        "type": item.get('type', None)
+                                    }
+                                    item.pop("type")
+                                    newParams.append(item)
+
+                            if formParameters:
+                                schema = {
+                                    'properties': formParameters,
+                                    'type': 'object'
+                                }
+                                if formParametersRequired: schema['required'] = formParametersRequired
+                                requestBody = {
+                                    'required': True,
+                                    'content': {
+                                        formFileType: {
+                                            'schema': schema
+                                        }
+                                    }
+                                }
+                                operation['requestBody'] = requestBody
+                        else:
+                            operation['parameters'] = params
+                            for item in params:
+                                if item.get('in') == "formData":
+                                    consumes = operation.get('consumes')
+                                    if not consumes:
+                                        consumes = []
+                                        operation['consumes'] = consumes
+                                    consumes.append('multipart/form-data')
+                                    break
+
                     operations[verb] = operation
 
             if len(operations):
@@ -358,7 +477,222 @@ class Swagger:
 
         @blueprint.route("/" + const.YML_SPEC_URL)
         def yml_api_spec():
-            return self._load_yml_spec()
+            aaa = """
+openapi: 3.0.0
+servers:
+  - url: '{scheme}://developer.uspto.gov/ds-api'
+    variables:
+      scheme:
+        description: 'The Data Set API is accessible via https and http'
+        enum:
+          - 'https'
+          - 'http'
+        default: 'https'
+info:
+  description: >-
+    The Data Set API (DSAPI) allows the public users to discover and search
+    USPTO exported data sets. This is a generic API that allows USPTO users to
+    make any CSV based data files searchable through API. With the help of GET
+    call, it returns the list of data fields that are searchable. With the help
+    of POST call, data can be fetched based on the filters on the field names.
+    Please note that POST call is used to search the actual data. The reason for
+    the POST call is that it allows users to specify any complex search criteria
+    without worry about the GET size limitations as well as encoding of the
+    input parameters.
+  version: 1.0.0
+  title: USPTO Data Set API
+  contact:
+    name: Open Data Portal
+    url: 'https://developer.uspto.gov'
+    email: developer@uspto.gov
+tags:
+  - name: metadata
+    description: Find out about the data sets
+  - name: search
+    description: Search a data set
+paths:
+  /:
+    get:
+      tags:
+        - metadata
+      operationId: list-data-sets
+      summary: List available data sets
+      responses:
+        '200':
+          description: Returns a list of data sets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/dataSetList'
+              example:
+                {
+                  "total": 2,
+                  "apis": [
+                    {
+                      "apiKey": "oa_citations",
+                      "apiVersionNumber": "v1",
+                      "apiUrl": "https://developer.uspto.gov/ds-api/oa_citations/v1/fields",
+                      "apiDocumentationUrl": "https://developer.uspto.gov/ds-api-docs/index.html?url=https://developer.uspto.gov/ds-api/swagger/docs/oa_citations.json"
+                    },
+                    {
+                      "apiKey": "cancer_moonshot",
+                      "apiVersionNumber": "v1",
+                      "apiUrl": "https://developer.uspto.gov/ds-api/cancer_moonshot/v1/fields",
+                      "apiDocumentationUrl": "https://developer.uspto.gov/ds-api-docs/index.html?url=https://developer.uspto.gov/ds-api/swagger/docs/cancer_moonshot.json"
+                    }
+                  ]
+                }
+  /{dataset}/{version}/fields:
+    get:
+      tags:
+        - metadata
+      summary: >-
+        Provides the general information about the API and the list of fields
+        that can be used to query the dataset.
+      description: >-
+        This GET API returns the list of all the searchable field names that are
+        in the oa_citations. Please see the 'fields' attribute which returns an
+        array of field names. Each field or a combination of fields can be
+        searched using the syntax options shown below.
+      operationId: list-searchable-fields
+      parameters:
+        - name: dataset
+          in: path
+          description: 'Name of the dataset. In this case, the default value is oa_citations'
+          required: true
+          schema:
+            type: string
+            default: oa_citations
+        - name: version
+          in: path
+          description: Version of the dataset.
+          required: true
+          schema:
+            type: string
+            default: v1
+      responses:
+        '200':
+          description: >-
+            The dataset api for the given version is found and it is accessible
+            to consume.
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: >-
+            The combination of dataset name and version is not found in the
+            system or it is not published yet to be consumed by public.
+          content:
+            application/json:
+              schema:
+                type: string
+  /{dataset}/{version}/records:
+    post:
+      tags:
+        - search
+      summary: >-
+        Provides search capability for the data set with the given search
+        criteria.
+      description: >-
+        This API is based on Solr/Lucense Search. The data is indexed using
+        SOLR. This GET API returns the list of all the searchable field names
+        that are in the Solr Index. Please see the 'fields' attribute which
+        returns an array of field names. Each field or a combination of fields
+        can be searched using the Solr/Lucene Syntax. Please refer
+        https://lucene.apache.org/core/3_6_2/queryparsersyntax.html#Overview for
+        the query syntax. List of field names that are searchable can be
+        determined using above GET api.
+      operationId: perform-search
+      parameters:
+        - name: version
+          in: path
+          description: Version of the dataset.
+          required: true
+          schema:
+            type: string
+            default: v1
+        - name: dataset
+          in: path
+          description: 'Name of the dataset. In this case, the default value is oa_citations'
+          required: true
+          schema:
+            type: string
+            default: oa_citations
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties:
+                    type: object
+        '404':
+          description: No matching record found for the given criteria.
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                criteria:
+                  maxLength: 10
+                  minLength: 2
+                  description: >-
+                    Uses Lucene Query Syntax in the format of
+                    propertyName:value, propertyName:[num1 TO num2] and date
+                    range format: propertyName:[yyyyMMdd TO yyyyMMdd]. In the
+                    response please see the 'docs' element which has the list of
+                    record objects. Each record structure would consist of all
+                    the fields and their corresponding values.
+                  type: string
+                  default: '*:*'
+                start:
+                  description: Starting record number. Default value is 0.
+                  type: integer
+                  default: 0
+                rows:
+                  description: >-
+                    Specify number of rows to be returned. If you run the search
+                    with default values, in the response you will see 'numFound'
+                    attribute which will tell the number of records available in
+                    the dataset.
+                  type: integer
+                  default: 100
+              required:
+                - criteria
+components:
+  schemas:
+    dataSetList:
+      type: object
+      properties:
+        total:
+          type: integer
+        apis:
+          type: array
+          items:
+            type: object
+            properties:
+              apiKey:
+                type: string
+                description: To be used as a dataset parameter value
+              apiVersionNumber:
+                type: string
+                description: To be used as a version parameter value
+              apiUrl:
+                type: string
+                format: uriref
+                description: "The URL describing the dataset's fields"
+              apiDocumentationUrl:
+                type: string
+                format: uriref
+                description: A URL to the API console for each API
+            """
+            return aaa
+            # return self._load_yml_spec()
 
         self.app.register_blueprint(blueprint, url_prefix=self.config.get('url_prefix',const.URL_PREFIX))
 

@@ -72,9 +72,12 @@ method_view:
       in: query
       type: integer
       description: 联系人ID
+      required: true
     - name: name
       in: query
       type: string
+      maxLength: 5
+      minLength: 1
       description: 联系人名字
   responses:
     200:
@@ -145,6 +148,8 @@ endpoint_all:
       in: path
       type: integer
       description: ID
+      maximum: 100
+      minimum: 1
   responses:
     200:
       schema:

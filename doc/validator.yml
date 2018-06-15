@@ -74,7 +74,7 @@ base_validator:
       minLength: 1
       description: 1&lt;=X&lt;=5
       example: abc
-      required: true
+      required: false
     - name: str_pattern
       in: formData
       type: string
